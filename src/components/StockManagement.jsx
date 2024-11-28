@@ -8,23 +8,38 @@ const StockManagement = () => {
 
   const handleStockUpdate = async () => {
     try {
-      if (!productId || quantity <= 0) {
-        alert('Please enter a valid product ID and quantity');
+      if (!productId || quantity <= 0 || isNaN(quantity)) {
+        alert('Please enter a valid product ID and a positive quantity.');
         return;
       }
-
+  
       const url =
         action === 'add'
           ? `http://127.0.0.1:8000/api/products/${productId}/add-stock/`
           : `http://127.0.0.1:8000/api/products/${productId}/remove-stock/`;
-
-      const response = await axios.post(url, { quantity });
+  
+      const payload = { 
+        quantity: parseInt(quantity, 10),
+        productId: productId  // Add this for debugging
+      }; 
+  
+      console.log("Request URL:", url);
+      console.log("Request Payload:", payload);
+  
+      const response = await axios.post(url, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
       alert('Stock updated successfully!');
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.error || 'Error updating stock!');
+      console.error("Full Error:", error);
+      console.error("Error Response:", error.response);
+      alert(error.response?.data?.error || error.message || 'Error updating stock!');
     }
   };
+  
+  
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -37,13 +52,16 @@ const StockManagement = () => {
             Product ID:
           </label>
           <input
-            type="text"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Enter Product ID"
-            required
-          />
+  type="text"
+  value={productId}
+  onChange={(e) => setProductId(e.target.value)}
+  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+  placeholder="Enter Product ID"
+  required
+/>
+
+
+
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
