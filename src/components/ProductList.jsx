@@ -4,6 +4,7 @@ import axios from 'axios';
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,53 +26,87 @@ const ProductList = () => {
       {products.length === 0 ? (
         <p className="text-center text-gray-500">No products found</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-200 rounded-lg shadow-md">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-200 px-4 py-2">Product ID</th>
-                <th className="border border-gray-200 px-4 py-2">Product Code</th>
-                <th className="border border-gray-200 px-4 py-2">Product Name</th>
-                <th className="border border-gray-200 px-4 py-2">Total Stock</th>
-                <th className="border border-gray-200 px-4 py-2">Variants</th>
-                <th className="border border-gray-200 px-4 py-2">Image</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="border border-gray-200 px-4 py-2 text-center">
-                    {product.ProductID}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2 text-center">
-                    {product.ProductCode}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">{product.ProductName}</td>
-                  <td className="border border-gray-200 px-4 py-2 text-center">
-                    {Math.round(product.TotalStock || 0)}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">
-                    {product.variants.map((variant) => (
-                      <div key={variant.id} className="text-sm">
-                        {variant.name}: {variant.subvariants.map((sv) => sv.option).join(', ')}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2 text-center">
-                    {product.ProductImage ? (
-                      <img
-                        src={product.ProductImage}
-                        alt={product.ProductName}
-                        className="max-w-[100px] max-h-[100px] mx-auto object-contain"
-                      />
-                    ) : (
-                      <span className="text-gray-500 italic">No Image</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer transition-transform transform hover:-translate-y-2 hover:shadow-2xl hover:scale-105 duration-300"
+              onClick={() => setSelectedProduct(product)}
+              style={{ height: '350px' }}
+            >
+              {product.ProductImage ? (
+                <img
+                  src={product.ProductImage}
+                  alt={product.ProductName}
+                  className="w-full h-64 object-cover"
+                />
+              ) : (
+                <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 italic">No Image</span>
+                </div>
+              )}
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-800">{product.ProductName}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Product Details Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-2xl relative">
+            <button
+              className="absolute top-4 right-4 text-blue-600 hover:text-gray-800 text-5xl"
+              onClick={() => setSelectedProduct(null)}
+            >
+              &times;
+            </button>
+            <div className="flex flex-col items-center">
+              {selectedProduct.ProductImage ? (
+                <img
+                  src={selectedProduct.ProductImage}
+                  alt={selectedProduct.ProductName}
+                  className="w-48 h-48 object-cover mb-4"
+                />
+              ) : (
+                <div className="w-48 h-48 bg-gray-200 flex items-center justify-center mb-4">
+                  <span className="text-gray-500 italic">No Image</span>
+                </div>
+              )}
+
+              <h2 className="text-xl font-bold">{selectedProduct.ProductName}</h2>
+              <p className="text-gray-600">
+                <strong>Product ID:</strong> {selectedProduct.ProductID}
+              </p>
+              <p className="mt-2 text-gray-600">
+                <strong>Product Code:</strong> {selectedProduct.ProductCode}
+              </p>
+              <p className="mt-2 text-gray-600">
+                <strong>Total Stock:</strong> {Math.round(selectedProduct.TotalStock || 0)}
+              </p>
+              <div className="mt-4">
+                
+
+                {selectedProduct.variants && selectedProduct.variants.length > 0 ? (
+  <div className="mt-2 text-gray-600">
+    <h3 className="text-lg font-semibold">Variants:</h3>
+    {selectedProduct.variants.map((variant, idx) => (
+      <div key={idx} className="text-sm mb-2">
+        <strong>{variant.name}:</strong>{' '}
+        {variant.subvariants && variant.subvariants.length > 0
+          ? variant.subvariants.map((subvariant) => subvariant.option).join(', ')
+          : 'No options available'}
+      </div>
+    ))}
+  </div>
+) : (
+  <p className="text-gray-500">No variants available</p>
+)}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

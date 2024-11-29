@@ -28,21 +28,21 @@ const ProductForm = () => {
       formData.append('ProductImage', productImage);
     }
   
-    // Correctly format variants and subvariants
-    const variantsPayload = variants.map((variant, index) => ({
+    // Correctly structure variants for backend
+    const variantsPayload = variants.map((variant) => ({
       name: variant.name,
-      subvariants: variant.options.map((option) => ({ option })),
+      subvariants: variant.options.map((option) => ({ option }))
     }));
+    
+    // Use JSON.stringify to pass variants
     formData.append('variants', JSON.stringify(variantsPayload));
   
-    // Log the FormData content for debugging
-    console.log('FormData:', Object.fromEntries(formData.entries()));
-  
     try {
-      await axios.post('http://127.0.0.1:8000/api/products/create/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const response = await axios.post('http://127.0.0.1:8000/api/products/create/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data','Accept': 'application/json'  },
       });
       alert('Product created successfully!');
+      // Reset form
       setProductName('');
       setProductImage(null);
       setVariants([{ name: '', options: [''] }]);
